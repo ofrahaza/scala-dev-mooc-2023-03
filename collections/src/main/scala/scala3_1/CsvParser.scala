@@ -1,7 +1,7 @@
 package scala3_1
 
 
-/*
+
 //1. исполользовать given, как написано в комментариях и в почеченных местах ниже
 //2. использовать новый "тихий синтаксис", где сочтете приемлемым, тут на ваше усмотрение
 //https://docs.scala-lang.org/scala3/new-in-scala3.html  глава New & Shiny: The Syntax
@@ -35,7 +35,17 @@ trait FieldConversion[A,B]:
   def convert(x: A): B
 
 given intFieldConversion: FieldConversion[String,Int] with
-  def convert(x: String): Int = ???
+  given intFieldConversion: FieldConversion[String, Int] with
+  def convert(x: String): Int = x.toInt
+
+  given floatFieldConversion: FieldConversion[String, Float] with
+  override def convert(x: String): Float = x.toFloat
+
+  given doubleFieldConversion: FieldConversion[String, Double] with
+  override def convert(x: String): Double = x.toDouble
+
+  given booleanFieldConversion: FieldConversion[String, Boolean] with
+  override def convert(x: String): Boolean = x.toBoolean
 // сделать given instance для типов Int Float Double
 // в функции просто сконвертнуть строку в нужный тип
 
@@ -44,9 +54,9 @@ object TestExecution{
   //здесь написать функцию, которая будет применять given определенные выше
   // использовать using fieldConversion c первым параметром String, а второй будет вариативны параметр B
 
-  def parse[String,B](x:String)(?????????) : B =
-    ...вызвать собственнь функцию из трейта FieldConversion...
-
+  def parse[String, B](x: String)(using conversion: FieldConversion[String, B]) = {
+    conversion.convert(x)
+  }
 
   def main(args: Array[String]): Unit = {
 
@@ -59,9 +69,10 @@ object TestExecution{
           (str, "")
       }
 
-    def IntField =  ??? //StringField.map(...здесь применить parse который подхватит нужный given автоматически ...)
-    def FloatField = ???
-    def BooleanField =???
+    //StringField.map(...здесь применить parse который подхватит нужный given автоматически ...)
+    def IntField: MonadParser[Int, String] = StringField.map(parse)
+    def FloatField: MonadParser[Float, String] = StringField.map(parse)
+    def BooleanField: MonadParser[Boolean, String] = StringField.map(parse)
 
     case class Car(year: Int, mark: String, model: String, comment: String, price: Float)
 
@@ -81,4 +92,4 @@ object TestExecution{
 
     println(result.map(x=>s"${x.model},${x.mark},${x.year}").mkString(";"))
   }
-}*/
+}
