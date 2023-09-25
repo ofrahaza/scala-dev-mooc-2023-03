@@ -3,6 +3,7 @@ package module1
 import java.util.UUID
 import scala.annotation.tailrec
 import java.time.Instant
+import scala.collection.immutable.List
 import scala.language.postfixOps
 
 
@@ -215,6 +216,41 @@ object hof{
       case Option.Some(v) => f(v)
       case Option.None => Option.None
     }
+
+    /**
+     *
+     * Реализовать метод printIfAny, который будет печатать значение, если оно есть
+     */
+
+    import Option._
+
+    def printIfAny(v: Option[String]): Unit = v match {
+      case Some(v) => println(v)
+      case None =>
+    }
+
+    /**
+     *
+     * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
+     */
+
+    def zip[A](that: Option[A]): Option[(T, A)] = (this, that) match {
+      case (Some(a), Some(b)) => Some((a, b))
+      case _ => None
+    }
+
+    /**
+     *
+     * Реализовать метод filter, который будет возвращать не пустой Option
+     * в случае если исходный не пуст и предикат от значения = true
+     */
+
+    def filter(prediction: T => Boolean): Option[T] = this match {
+      case Some(v) => if (prediction(v)) Some(v) else None
+      case None => None
+    }
+
+
   }
 
   object Option{
@@ -223,27 +259,6 @@ object hof{
     case object None extends Option[Nothing]
   }
 
-
-
-
-
-  /**
-   *
-   * Реализовать метод printIfAny, который будет печатать значение, если оно есть
-   */
-
-
-  /**
-   *
-   * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
-   */
-
-
-  /**
-   *
-   * Реализовать метод filter, который будет возвращать не пустой Option
-   * в случае если исходный не пуст и предикат от значения = true
-   */
 
  }
 
@@ -261,7 +276,45 @@ object hof{
        case List.::(head, tail) => List.::(el, this)
        case List.Nil => List.::(el, List.Nil)
      }
+
+     def ::[A >: T](a: A): List[A] = List.::(a, this)
+
+     def mkString(separator: String): String = {
+       @tailrec
+       def loop(list: List[T], str: String): String = {
+         list match {
+           case List.::(head, List.Nil) => str + head
+           case List.::(head, tail) => loop(tail, str + head + separator)
+           case _ => str
+         }
+       }
+       loop(this, "")
+     }
+
+     def reverse: List[T] = {
+       @tailrec
+       def loop(that: List[T], l: List[T]): List[T] = {
+         that match {
+           case List.Nil => l
+           case List.::(head, tail) => loop(tail, l.cons(head))
+         }
+       }
+       loop(this, List())
+     }
+
+     def map[B](f: T => B): List[B] = {
+       @tailrec
+       def loop(that: List[T], l: List[B]): List[B] = that match {
+         case List.Nil => l
+         case List.::(head, tail) => loop(tail, l.cons(f(head)))
+       }
+       loop(this, List()).reverse
+     }
+
+
     }
+
+
 
     object List{
       case class ::[A](head: A, tail: List[A]) extends List[A]
@@ -303,7 +356,6 @@ object hof{
       * Реализовать метод map для списка который будет применять некую ф-цию к элементам данного списка
       */
 
-
     /**
       *
       * Реализовать метод filter для списка который будет фильтровать список по некому условию
@@ -315,6 +367,7 @@ object hof{
       * где каждый элемент будет увеличен на 1
       */
 
+    def incList(list: List[Int]): List[Int] = list.map(_ + 1)
 
     /**
       *
@@ -322,4 +375,5 @@ object hof{
       * где к каждому элементу будет добавлен префикс в виде '!'
       */
 
+    def shoutString(list: List[String]): List[String] = list.map("!" + _)
  }
